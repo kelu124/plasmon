@@ -1,0 +1,13 @@
+
+
+function R=Demo()
+
+plot(BPRS.angle,BPRS.reflec,'g',BPR.angle,BPR.reflec,'r');
+figure
+plot(BPGS.angle,BPGS.reflec,'g',BPG.angle,BPG.reflec,'r');
+
+end
+
+%%
+
+end

@@ -1,0 +1,101 @@
+
+
+
+function R=DATSimul(TStart,TStop,N)
+
+
+
+%Paramètres de la fenetre
+figure(1)
+clf
+axes('position',[.05 .3  .9 .68])
+%Caracteristiques du prisme
+n0=uicontrol('style','slider','min',0,'max',2,'value',1.505);
+set(n0,'units','normalized','position',[.10 .16 .25 .025]);
+uicontrol('style','text','string','PRISM','units','normalized','position',[.0 .16 .07 .02]);
+%Silver Layer
+nAg=uicontrol('style','slider','min',0,'max',1,'value',.1726);
+set(nAg,'units','normalized','position',[.10 .12 .25 .025]);
+kAg=uicontrol('style','slider','min',0,'max',4,'value',3.4218);
+set(kAg,'units','normalized','position',[.40 .12 .25 .025]);
+dAg=uicontrol('style','slider','min',0,'max',100,'value',88);
+set(dAg,'units','normalized','position',[.70 .12 .25 .025]);
+uicontrol('style','text','string','GOLD','units','normalized','position',[.0 .12 .07 .02]);
+%Glass Layer
+nV2=uicontrol('style','slider','min',0,'max',2,'value',1.7);
+set(n_lyr,'units','normalized','position',[.10 .08 .25 .025]);
+k_lyr=uicontrol('style','slider','min',0,'max',1,'value',0);
+set(k_lyr,'units','normalized','position',[.40 .08 .25 .025]);
+d_lyr=uicontrol('style','slider','min',0,'max',400,'value',20);
+set(d_lyr,'units','normalized','position',[.70 .08 .25 .025]);
+uicontrol('style','text','string','LAYER','units','normalized','position',[.0 .08 .07 .02]);
+
+
+%Ref = DATOpen('buffer RED P.dat');
+
+
+pi=acos(-1);
+lambda = 545e-9;
+
+Step = (TStop-TStart)/N;
+
+%        n          k        t
+V1 =    [1.52,     0.00,       0      ];  %Verre
+Ag =    [0.13,     3.98,    50e-9  ];  %Ag
+V2 =    [1.45,    0.0000,  500.4e-9 ];  %Verre
+
+Blm =   [1.515,     0.022,   5.2e-9   ];  %BLM
+Eau =   [1.33,      0.00,  0      ]; %Eau
+
+K =     [V1;Ag;V2;Eau];
+Nl = length(K);
+
+for Ki=1:Nl
+    Er = K(Ki,1)^2 - K(Ki,2)^2;
+    Ei = 2*K(Ki,1)*K(Ki,2);
+    E(Ki) = complex(Er,Ei);
+end
+
+% Début de la procédure
+ 
+for Kt=1:N
+    Text(1,Kt) =(TStart + Kt*Step);
+    Trad = Text(Kt)*pi/180;
+    Thetas(1,Kt) = Trad;
+    PrismAngle = 0.7954;
+    %PrismAngle = pi/3;
+    T = PrismAngle + asin( sin(Trad - PrismAngle ) / K(1,1));
+    %T = Trad;
+    q1 = sqrt ( E(1) - (K(1,1)*sin(T))^2) / E( 1);
+    qn = sqrt (E(Nl) - (K(1,1)*sin(T))^2) / E(Nl);
+    
+    M = [1,0;0,1];
+    
+    for Kj=2:(Nl-1)
+        KKj = Kj - 1;
+        Beta(KKj) =  sqrt( E(Kj) -  (K(1,1)*sin(T))^2 ) * pi*2*K(Kj,3)/lambda;
+        Q(KKj) =     sqrt( E(Kj) -  (K(1,1)*sin(T))^2 ) / E(Kj);
+    
+        MTransfer(1,1) = cos (Beta(KKj));
+        MTransfer(1,2) =- i * sin (Beta(KKj)) / Q(KKj);
+        MTransfer(2,1) =- i * sin (Beta(KKj)) * Q(KKj);
+        MTransfer(2,2) = cos (Beta(KKj));
+
+        M = M * MTransfer;
+        
+    end
+    
+    
+    Rnom =      (M(1,1)+ M(1,2)*qn)*q1  -  (M(2,1)+M(2,2)*qn);
+    Rdenom =    (M(1,1)+ M(1,2)*qn)*q1  +  (M(2,1)+M(2,2)*qn);
+    
+    Rfrac = Rnom / Rdenom;
+    
+    R(1,Kt) = abs(Rfrac)^2; % * conj(Rfrac);
+
+end
+%figure
+hold on
+%plot(Ref(1,:)',Ref(2,:)','r');
+plot(Text,R,'g');
+

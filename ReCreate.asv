@@ -1,0 +1,28 @@
+d1 = 52.2;
+d2 = 452.5;
+nAg = 0.195;
+kAg = 3.988;
+kV2 =0.0016;
+
+nb= 1.3347; 
+%nb= 1.3334; pour le vert ?
+% BPRS = DATSimul(d1,d2,633,nb,1.43,0.055,0);
+ ERPS = DATSimul(nAg,kAg,d1,kV2,d2,633,nb,1.5473,0.1762,6);
+% BPGS = DATSimul(d1,d2,545,nb,1.49,0.01,8.2);
+% 
+% 
+% subplot(2,1,1)
+% plot(BPRS.angle,BPRS.reflec,'g',BPR.angle,BPR.reflec,'r');
+% XLABEL('Angle');
+% YLABEL('Reflectivity coefficient');
+% 
+%subplot(2,1,2)
+plot(ERPS.angle,ERPS.reflec,'g',ERP.angle,ERP.reflec,'r');
+ XLABEL('Angle');
+ YLABEL('Reflectivity coefficient');
+% figure
+% 
+% BPGS = DATSimul(d1,d2,545,nb,1.43,0.055,0);
+% plot(BPGS.angle,BPGS.reflec,'g',BPG.angle,BPG.reflec,'r');
+% XLABEL('Angle');
+% YLABEL('Reflectivity coefficient');
